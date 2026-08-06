@@ -80,16 +80,21 @@ jobs:
           gh auth setup-git
           git clone "https://github.com/${WIKI_REPOSITORY}.wiki.git" "$wiki_dir"
 
-          cp -f dashboard/Project-Dashboard.md "$wiki_dir/Project-Dashboard.md"
+          # Live wiki page is "Dashboard" (renamed from "Project-Dashboard" in the
+          # web UI on 2026-05-29); publish there so updates actually land.
+          cp -f dashboard/Project-Dashboard.md "$wiki_dir/Dashboard.md"
           cd "$wiki_dir"
-          if git diff --quiet -- Project-Dashboard.md; then
+          # Stage first, then diff the index: `git diff --quiet` on the worktree does
+          # NOT see an untracked/new page file, so a renamed-away target silently
+          # reported "unchanged" and committed nothing (green CI, frozen page).
+          git add -A
+          if git diff --cached --quiet; then
             echo "Wiki dashboard is unchanged."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Project-Dashboard.md
           git commit -m "Update project dashboard"
           wiki_branch="$(git rev-parse --abbrev-ref HEAD)"
           git push origin "HEAD:${wiki_branch}"
