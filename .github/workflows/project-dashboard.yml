@@ -19,7 +19,7 @@ concurrency:
 jobs:
   collect-and-publish:
     name: Collect metrics and publish wiki
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 20
     if: github.ref == 'refs/heads/main'
     env:
